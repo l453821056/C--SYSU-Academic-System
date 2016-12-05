@@ -1,0 +1,59 @@
+#include <iostream>
+#include "Backend.h"
+using namespace std;
+int main(int argc, char *argv[])
+{
+    //Init Promote
+    cout <<"Welcome to MUKS, a Multi-User Kechengbiao Software "<<endl;
+    cout <<"Type "<<BOLDMAGENTA<<"help "<<RESET<<"for instructions on how to use MUKS"<<endl;
+    promote();
+    //Init Command stack
+    char *iargv[MAX_COMMAND];
+    for(int i=0;i<MAX_COMMAND;i++){
+        iargv[i]=new char [256];
+        memset(iargv[i],0,sizeof(char)*MAX_COMMAND_CHAR);
+    }
+    for(int i=0;i<argc;i++)
+        strcpy_s(iargv[i],MAX_COMMAND_CHAR,argv[i]);
+    //read Command
+    string Command;
+    cin.sync_with_stdio(false);
+    while(cin>>Command&&Command!="quit")
+    {
+        if(argc <= MAX_COMMAND){
+            strcpy_s(iargv[argc],MAX_COMMAND_CHAR,Command.c_str());
+            argc++;
+        }
+        if(cin.rdbuf()->in_avail()==1){
+            if(argc != 1){
+                try{
+                if(!strcmp(iargv[1],"select"))
+                    select(argc,iargv);
+                else if(!strcmp(iargv[1],"add"))
+                    add(argc,iargv);
+                else if(!strcmp(iargv[1],"delete"))
+                    del(argc,iargv);
+                else if(!strcmp(iargv[1],"sort"))
+                    sort(argc,iargv);
+                else if(!strcmp(iargv[1],"find"))
+                    find(argc,iargv);
+                else
+                    cout<<"Wrong Input, enter"<<BOLDMAGENTA<<" help"<<RESET<<" to see manual"<<endl;
+                }catch(Error ErrorInstance){
+                    switch(ErrorInstance.ErrorLevel){
+                        case INVAILD_INPUT:{
+                            cout<<"Invaild Input During "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                cout<<"During Processing Argument "<<RED<<ErrorInstance.ErrorArgv<<RESET<<endl;    
+                }
+                argc=1;//Clear Used Command
+            }
+            promote();
+        }
+    }
+    return 0;
+}
