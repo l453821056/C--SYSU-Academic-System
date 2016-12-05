@@ -1,8 +1,17 @@
 # Prerequisites
 *.swp
 *.d
-
-# Compiled Object files
+# swap
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+# session
+Session.vim
+# temporary
+.netrwhist
+*~
+# auto-generated tag files
+tags
+#Compiled Object files
 *.slo
 *.lo
 *.o
