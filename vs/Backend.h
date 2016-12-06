@@ -36,7 +36,6 @@ using namespace std;
 #define MAX_LESSON_OF_TERM 16//128
 #define MAX_TERM_OF_STUDENT 16//32
 #define DURATION_OF_LESSON 45
-char* strcpy_s(char *dest,size_t destsz, const char *src);
 int select(int argc, char *argv[]);
 int add(int argc, char *argv[]);
 int del(int argc, char *argv[]);
@@ -401,7 +400,7 @@ class Student{
         }
             
 };
-class Storage{
+ class Storage{
     private:
         Student Students[MAX_STUDENTS_NUM];
         int TotalStudentNumber;
@@ -441,17 +440,18 @@ class Storage{
         int Add()
         {
             string Input;
-            cout <<"请输入学号"<<endl;
+            cout <<"Input School ID"<<endl;
             cin>>Input;
             int result=vaildStudentId(Input.c_str());
             if(!result||result==INVAILD_SELECTION){
                 throwError(INVAILD_INPUT,"add student",Input.c_str());
                 }
-            cout <<"请输入姓名"<<endl;
+            cout <<"Input Name"<<endl;
             cin>>Input;
             this->getStudentHandle(getTotalStudentNumberRefer())->setName(Input);
             this->getStudentHandle(getTotalStudentNumberRefer())->setStudentId(result);
             getTotalStudentNumberRefer()++;
+			return 0;
         }
 
 };

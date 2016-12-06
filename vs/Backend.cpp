@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Backend.h"
 #include <iostream>
 using namespace std;
@@ -40,16 +41,12 @@ void throwWarning(int ErrorLevel, string ErrorProcedure,const char *argv,string 
 int MY_strcmp(const char* Command, const char* Input, bool EnableShort)
 {
     if(EnableShort)
-        return (strcmp(Input,Command)&&strcasecmp(Input,Command)&&!(Input[0]==Command[0]));
+        return (strcmp(Input,Command)&&stricmp(Input,Command)&&!(Input[0]==Command[0]));
     else
-        return (strcmp(Input,Command)&&strcasecmp(Input,Command));
+        return (strcmp(Input,Command)&&stricmp(Input,Command));
 }
 
-char* strcpy_s(char *dest,size_t destsz, const char *src)
-{
-    size_t len=strlen(src);
-    return len<=destsz?strcpy(dest,src):strcpy(dest,"");
-}
+
 int vaildStudentId(const char InputStudentId[])
 {
     int StudentId=atoi(InputStudentId);
@@ -94,9 +91,9 @@ void help(initializer_list<string> argv)
     }
     if(!found)
     {
-    cout <<"没有找到"<<BOLDMAGENTA<<(*(argv.begin()))<<RESET<<"的帮助。";
+    cout <<"Not Found Help of "<<BOLDMAGENTA<<(*(argv.begin()))<<RESET;
     for(auto beg=argv.begin()+1;beg!=argv.end();++beg)
-        cout <<"在模块"<<BOLDMAGENTA<<*beg<<RESET<<"中";
+        cout <<"In module"<<BOLDMAGENTA<<*beg<<RESET;
     cout <<endl;
     return;
     }
@@ -157,7 +154,6 @@ int add(int argc, char *argv[])
             if(CurrentSelect.Selected==false){
                 throwError(NOT_HAVE_SELECTED,"add lesson",string("Now You Have Selected Student ")+string(to_string(CurrentSelect.StudentId))+string(" Year ")+string(to_string(CurrentSelect.CurrentYear))+string(" Term ")+string(to_string(CurrentSelect.CurrentTerm)));
             }
-            Students.getStudentHandle(Students.Find(CurrentSelet.StudentId))->getTermHandle(getNumberOfTerm(CurrentSelet.CurrentYear,CurrentSelet.CurrentTerm).Add();
         }
         else{
             throwError(INVAILD_INPUT,"Addition",argv[i]);
