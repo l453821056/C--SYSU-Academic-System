@@ -1,11 +1,11 @@
 #include "Storage.h"
-#include <string>
 #include <iostream>
 using namespace std;
 Selection CurrentSelect;
 Time CurrentTime;
 Storage Students;
-string LessonType[4] = {"公必","专必","专选","公选"};
+
+string LessonsType[4]= {"PubReq","ProReq","PubEle","ProEle"};
 string DaysOfWeekName[7]={"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"};
 void throwError(int ErrorLevel, string ErrorProcedure,const char *argv)
 {
@@ -29,10 +29,6 @@ void throwWarning(int ErrorLevel, string ErrorProcedure,const char *argv,string 
     switch(ErrorLevel){
         case ACCESS_UNREASONABLE:{
             cout<<"Warning: Unreasonable Access During "<<RED<<ErrorProcedure<<RESET<<endl;
-            break;
-        }
-        case INVAILD_INPUT:{
-            cout<<"Warning: Invaild Input During "<<RED<<ErrorProcedure<<RESET<<endl;
             break;
         }
         default:
@@ -194,13 +190,6 @@ int print(int argc, char *argv[])
         if(!MY_strcmp("student",argv[i])){
             Students.print();
         }
-        else if(!MY_strcmp("term",argv[i])){
-            if(CurrentSelect.Selected==false){
-                throwError(NOT_HAVE_SELECTED,"Print Term",string("Now You Have Selected Student ")+string(to_string(CurrentSelect.StudentId))+string(" Year ")+string(to_string(CurrentSelect.CurrentYear))+string(" Term ")+string(to_string(CurrentSelect.CurrentTerm)));
-            }
-            Student* Point2Student=Students.getStudentHandle(Students.Find(CurrentSelect.StudentId));
-            Point2Student->print();
-        }
         else if(!MY_strcmp("lesson",argv[i])){
             if(CurrentSelect.Selected==false){
                 throwError(NOT_HAVE_SELECTED,"Print Lesson",string("Now You Have Selected Student ")+string(to_string(CurrentSelect.StudentId))+string(" Year ")+string(to_string(CurrentSelect.CurrentYear))+string(" Term ")+string(to_string(CurrentSelect.CurrentTerm)));
@@ -222,10 +211,4 @@ int promote()
     else 
        cout <<CurrentSelect.StudentId<<"@"<<CurrentSelect.CurrentYear<<"T"<<CurrentSelect.CurrentTerm<<" > "; 
     return 0;
-}
-
-int promote(string Content)
-{
-	cout << Content << " > ";
-	return 0;
 }

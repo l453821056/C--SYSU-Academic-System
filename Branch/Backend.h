@@ -15,9 +15,6 @@ using namespace std;
 #define MAX_COMMAND_CHAR 256
 #define MAX_STUDENTS_NUM 8//256
 #define MAX_WEEK_TIMES 4
-#define UTF8_CHINESE_BYTE 3
-#define MAX_LENGTH_OF_MAJOR 10*UTF8_CHINESE_BYTE
-#define MAX_LENGTH_OF_SCHOOL 11*UTF8_CHINESE_BYTE
 #define INVAILD_INPUT 0x01
 #define NOT_HAVE_SELECTED 0x02
 #define ACCESS_VIOLATION 0x04
@@ -53,7 +50,6 @@ int find(int argc, char *argv[]);
 int print(int argc, char *argv[]);
 int sort(int argc, char *argv[]);
 int promote();
-int promote(string Content);
 int vaildStudentId(const char InputStudentId[]);
 int vaildTerm(const char InputTerm[]);
 int vaildYear(const char InputYear[]);
@@ -63,7 +59,7 @@ void throwError(int ErrorLevel,string ErrorProcedure, string ErrorMessage);
 void throwError(int ErrorLevel,string ErrorProcedure, const char *agrv);
 void throwWarning(int ErrorLevel, string ErrorProcedure,const char *argv,string ErrorMessage="");
 extern string Weekdays[7];
-extern string LessonType[4];
+extern string Lesson_Type[4];
 typedef struct Error_Struct{
     int ErrorLevel;
     char ErrorArgv[MAX_COMMAND_CHAR];

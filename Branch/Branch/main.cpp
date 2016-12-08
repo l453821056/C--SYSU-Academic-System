@@ -55,23 +55,23 @@ int main(int argc, char *argv[])
                 }catch(Error ErrorInstance){
                     switch(ErrorInstance.ErrorLevel){
                         case INVAILD_INPUT:{
-                            cout<<RED<<"Error: Invaild Input During "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
+                            cout<<"Invaild Input During "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
                             break;
                         }
                         case INVAILD_SELECTION:{
-                            cout<<RED<<"Error: Invaild Selection During "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
+                            cout<<"Invaild Selection During "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
                             break;
                         }
                         case NOT_HAVE_SELECTED:{
-                            cout<<RED<<"Error: Invaild Selection During "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
+                            cout<<"Invaild Selection During "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
                             break;
                         }
                         case ACCESS_VIOLATION:{
-                            cout<<RED<<"Error: Invaild Access During "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
+                            cout<<"Invaild Access During "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
                             break;
                         }
                         case STORAGE_FULL:{
-                            cout<<RED<<"Error: Storage is Full "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
+                            cout<<"Storage is Full "<<RED<<ErrorInstance.ErrorProcedure<<RESET<<endl;
                             break;
                         }
                         default:

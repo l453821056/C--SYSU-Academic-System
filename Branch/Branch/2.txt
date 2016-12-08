@@ -15,9 +15,8 @@ using namespace std;
 #define MAX_COMMAND_CHAR 256
 #define MAX_STUDENTS_NUM 8//256
 #define MAX_WEEK_TIMES 4
-#define UTF8_CHINESE_BYTE 3
-#define MAX_LENGTH_OF_MAJOR 10*UTF8_CHINESE_BYTE
-#define MAX_LENGTH_OF_SCHOOL 11*UTF8_CHINESE_BYTE
+#define MAX_LENGTH_OF_MAJOR 22
+#define MAX_LENGTH_OF_SCHOOL 24
 #define INVAILD_INPUT 0x01
 #define NOT_HAVE_SELECTED 0x02
 #define ACCESS_VIOLATION 0x04
@@ -53,7 +52,6 @@ int find(int argc, char *argv[]);
 int print(int argc, char *argv[]);
 int sort(int argc, char *argv[]);
 int promote();
-int promote(string Content);
 int vaildStudentId(const char InputStudentId[]);
 int vaildTerm(const char InputTerm[]);
 int vaildYear(const char InputYear[]);
@@ -63,7 +61,7 @@ void throwError(int ErrorLevel,string ErrorProcedure, string ErrorMessage);
 void throwError(int ErrorLevel,string ErrorProcedure, const char *agrv);
 void throwWarning(int ErrorLevel, string ErrorProcedure,const char *argv,string ErrorMessage="");
 extern string Weekdays[7];
-extern string LessonType[4];
+extern string Lesson_Type[4];
 typedef struct Error_Struct{
     int ErrorLevel;
     char ErrorArgv[MAX_COMMAND_CHAR];
@@ -143,3 +141,118 @@ extern string Path;
 extern string FileNamePath;
 extern string StudentListFilePath;
 #endif
+#ifndef LESSON_H
+#define LESSON_H
+#include "Backend.h"
+class Lesson{
+    public:
+    int WeekTimes;
+    int Term;
+    int Year;
+    string Name;
+    string TeacherName;
+    int Type;
+    int Weekday[MAX_WEEK_TIMES];
+    int StartWeek;
+    int EndWeek;
+    int StartTime[MAX_WEEK_TIMES];
+    int EndTime[MAX_WEEK_TIMES];
+    bool Finished;
+    int Credit;
+    int Grade;
+    string GetTime(int StartTime);
+    Lesson();
+    int init();
+};
+#endif
+#ifndef STORAGE_H
+#define STORAGE_H
+#include "Student.h"
+class Storage{
+    private:
+//        Student Students[MAX_STUDENTS_NUM];
+        vector<Student> Students;
+        int TotalStudentNumber;
+    public:
+        int& getTotalStudentNumberRefer();
+        Storage();
+        const Student& getStudent(int n);
+        const Student& operator [](int n);
+        Student* getStudentHandle(int n);
+        int Add();
+        int Find(int StudentId);
+        int print();
+};
+#endif
+#ifndef STUDENT_H
+#define STUDENT_H
+#include "Term.h"
+class Student{
+    public:
+        int NumberOfTerm=0;
+        int StudentId;
+        int EntranceYear;
+        int OverallCredit;
+        int OverallGrade;
+        int OverallCreditExpectPubEle;
+        int OverallGradeExpectPubEle;
+        bool TermsContentChanged;
+        bool TermsChanged;
+        string Name;
+        string School;
+        string Major;
+        Term Terms[MAX_TERM_OF_STUDENT+1];
+        Student();
+        void calcTermTillNow();
+        void calcEntranceYear();
+        int getStudentId();
+        int getOverallCredit();
+        int getOverallGrade();
+        int getOverallGradeExpectPubEle();
+        int getOverallCreditExpectPubEle();
+        string getSchool();
+        string getMajor();
+        int getNumberOfTerm(int Year, int Term);
+        int getTotalTermOfYear(int Year);
+        string getName();
+        Term* getTermHandle(int n);
+        const Term& getTerm(int n);
+        const Term& operator [](int n);
+        int setName(string Name);
+        int setStudentId(int StudentId);
+        int setSchool(string School);
+        int setMajor(string Major);
+        void reNewStudentContentAfterTermsChanged();    
+};
+#endif
+#ifndef TERM_H
+#define TERM_H
+#include "Lesson.h"
+class Term{
+    private:
+        int Average;
+        int AverageExpectPubEle;
+        int TotalCredit;
+        int TotalCreditExpectPubEle;
+    public:
+        int Year;
+        int TotalRank;
+        int Rank;
+        Lesson Lessons[MAX_LESSON_OF_TERM+1];
+        bool LessonsChanged;
+        int NumberOfLesson;
+        Term();
+        int setYear(int Year);
+        int setRank(int Rank);
+        int setTotalRank(int TotalRank);
+        void reNew();
+        int getCredit();
+        int getCreditExpectPubEle();
+        int getAverage();
+        int getAverageExpectPubEle();
+        int& getNumberOfLessonRefer();
+        int Add();
+        int print();
+};
+#endif
+

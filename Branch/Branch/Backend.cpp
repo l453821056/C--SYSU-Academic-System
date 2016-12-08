@@ -1,11 +1,10 @@
 #include "Storage.h"
-#include <string>
 #include <iostream>
 using namespace std;
 Selection CurrentSelect;
 Time CurrentTime;
 Storage Students;
-string LessonType[4] = {"公必","专必","专选","公选"};
+string LessonsType[4]= {"PubReq","ProReq","PubEle","ProEle"};
 string DaysOfWeekName[7]={"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"};
 void throwError(int ErrorLevel, string ErrorProcedure,const char *argv)
 {
@@ -29,10 +28,6 @@ void throwWarning(int ErrorLevel, string ErrorProcedure,const char *argv,string 
     switch(ErrorLevel){
         case ACCESS_UNREASONABLE:{
             cout<<"Warning: Unreasonable Access During "<<RED<<ErrorProcedure<<RESET<<endl;
-            break;
-        }
-        case INVAILD_INPUT:{
-            cout<<"Warning: Invaild Input During "<<RED<<ErrorProcedure<<RESET<<endl;
             break;
         }
         default:
@@ -222,10 +217,4 @@ int promote()
     else 
        cout <<CurrentSelect.StudentId<<"@"<<CurrentSelect.CurrentYear<<"T"<<CurrentSelect.CurrentTerm<<" > "; 
     return 0;
-}
-
-int promote(string Content)
-{
-	cout << Content << " > ";
-	return 0;
 }
