@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Backend.h"
+#include "main.h"
 using namespace std;
 int main(int argc, char *argv[])
 {

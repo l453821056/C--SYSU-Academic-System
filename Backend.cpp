@@ -58,7 +58,7 @@ char* strcpy_s(char *dest,size_t destsz, const char *src)
 int vaildStudentId(const char InputStudentId[])
 {
     int StudentId=atoi(InputStudentId);
-    if(StudentId<0 || StudentId>100000000)
+    if(StudentId<10000000 || StudentId>100000000)
         return 0;
 //  if(!findStudentId(StudentId))
 //      return 0;
@@ -120,6 +120,17 @@ int select(int argc, char *argv[])
             cout <<"Successfully Selected Student "<<CYAN<<CurrentSelect.StudentId<<RESET<<", Now You Need To Select"<<BOLDMAGENTA<<" Year "<<RESET<<"and"<<BOLDMAGENTA<<" Term"<<RESET<<endl;   
             CurrentSelect.Selected=false;
         }
+		else if (!MY_strcmp("rank", argv[i])) {
+			int n = atoi(argv[++i]);
+			if (n <= 0 || n > Students.getTotalStudentNumberRefer()) {
+				throwError(INVAILD_INPUT, "Select Student", argv[i]);
+			}
+			if (!(CurrentSelect.StudentId = (Students.getStudentHandle(n-1)->getStudentId()))) {
+				throwError(INVAILD_SELECTION, "Select Student", argv[i]);
+			}
+			cout << "Successfully Selected Student " << CYAN << CurrentSelect.StudentId << RESET << ", Now You Need To Select" << BOLDMAGENTA << " Year " << RESET << "and" << BOLDMAGENTA << " Term" << RESET << endl;
+			CurrentSelect.Selected = false;
+		}
         else if (!MY_strcmp("year",argv[i])){
             int result=CurrentSelect.CurrentYear=vaildYear(argv[++i]);
             if(!result){
@@ -174,14 +185,217 @@ int add(int argc, char *argv[])
 }
 int del(int argc, char *argv[])
 {
+	if (argc <= 3) {
+		help({ "delete" });
+	}
+	if (argc == 4) {
+		if (!MY_strcmp("student", argv[2])) {
+			int StudentId;
+			if (!(StudentId = vaildStudentId(argv[3]))) {
+				throwError(INVAILD_INPUT, "Delete Student", argv[3]);
+			}
+			Students.del(StudentId);
+		}
+		else if (!MY_strcmp("lesson", argv[2])) {
+			if (CurrentSelect.Selected == false) {
+				throwError(NOT_HAVE_SELECTED, "Delete Lesson", string("Now You Have Selected Student ") + string(to_string(CurrentSelect.StudentId)) + string(" Year ") + string(to_string(CurrentSelect.CurrentYear)) + string(" Term ") + string(to_string(CurrentSelect.CurrentTerm)));
+			}
+			Student* Point2Student = Students.getStudentHandle(Students.Find(CurrentSelect.StudentId));
+			Term* Point2Term = Point2Student->getTermHandle(Point2Student->getNumberOfTerm(CurrentSelect.CurrentYear, CurrentSelect.CurrentTerm));
+			int LessonRank = atoi(argv[3]);
+			if (LessonRank > Point2Term->getNumberOfLessonRefer() || LessonRank <= 0)
+				throwError(INVAILD_SELECTION, "Delete Lesson", argv[3]);
+			Point2Term->del(LessonRank);
+		}
+		else if (!MY_strcmp("rank", argv[2])) {
+			int n = atoi(argv[3]);
+			int StudentId;
+			if (n <= 0 || n > Students.getTotalStudentNumberRefer()) {
+				throwError(INVAILD_INPUT, "Delete Student", argv[3]);
+			}
+			if (!(StudentId = (Students.getStudentHandle(n-1)->getStudentId()))) {
+				throwError(INVAILD_SELECTION, "Delete Student", argv[3]);
+			}
+			Students.del(StudentId);
+		}
+		else {
+			throwError(INVAILD_INPUT, "Deletion", argv[2]);
+		}
+	}
+
     return 0;
 }
 int find(int argc, char *argv[])
 {
+	if (argc <= 4) {
+		help({ "find" });
+	}
+	if (argc == 5) {
+		if (!MY_strcmp("student", argv[2])) {
+			if (!MY_strcmp("-i",argv[3],false)) {
+				int StudentId;
+				if (!(StudentId = vaildStudentId(argv[4]))) {
+					throwError(INVAILD_INPUT, "Find Student", argv[4]);
+				}
+				int Rank=Students.Find(StudentId);
+				if (StudentId == NOT_FOUND_STUDENTID)
+					throwError(NOT_FOUND_STUDENTID, "Find Student by ID", argv[4]);
+				Students.print(Rank);
+			}
+			else if (!MY_strcmp("-n", argv[3], false)) {
+				string Name = string(argv[4]);
+				int Rank = Students.Find(Name);
+				if (Rank == NOT_FOUND_STUDENTID)
+					throwError(NOT_FOUND_STUDENTID, "Find Student by Name", argv[4]);
+				Students.print(Rank);
+			}
+			else if(!MY_strcmp("-r",argv[3],false)) {
+				int Rank = atoi(argv[4]);//Attention
+				if (Rank <= 0 || Rank > Students.getTotalStudentNumberRefer()) {
+					throwError(INVAILD_INPUT, "Find Student", argv[4]);
+				}
+				int From0Rank = Rank - 1;
+				Students.print(From0Rank);
+			}
+			else {
+				throwError(INVAILD_INPUT, "Find Student", string("No Matching Argv"));
+			}
+		}
+		else if (!MY_strcmp("lesson", argv[2])) {
+			if (!MY_strcmp("-w", argv[3], false)) {
+				if (CurrentSelect.Selected == false) {
+					throwError(NOT_HAVE_SELECTED, "Find Lesson", string("Now You Have Selected Student ") + string(to_string(CurrentSelect.StudentId)) + string(" Year ") + string(to_string(CurrentSelect.CurrentYear)) + string(" Term ") + string(to_string(CurrentSelect.CurrentTerm)));
+				}
+				Student* Point2Student = Students.getStudentHandle(Students.Find(CurrentSelect.StudentId));
+				Term* Point2Term = Point2Student->getTermHandle(Point2Student->getNumberOfTerm(CurrentSelect.CurrentYear, CurrentSelect.CurrentTerm));
+				int Week = atoi(argv[4]);//Attention
+				vector<int> LessonRanks;
+				for (int i = 0; i < Point2Term->getNumberOfLessonRefer(); i++) {
+					LessonRanks.push_back(Point2Term->Find(Week, argv[3],i));
+				}
+				//大概没有一节课一天上两次吧
+				for (auto j : LessonRanks) {
+					if (LessonRanks[j] > Point2Term->getNumberOfLessonRefer() || LessonRanks[j] < 0)
+						continue;
+					Point2Term->print(LessonRanks[j]);
+				}
+			}
+			else if (!MY_strcmp("-n", argv[3], false)) {
+				if (CurrentSelect.Selected == false) {
+					throwError(NOT_HAVE_SELECTED, "Find Lesson", string("Now You Have Selected Student ") + string(to_string(CurrentSelect.StudentId)) + string(" Year ") + string(to_string(CurrentSelect.CurrentYear)) + string(" Term ") + string(to_string(CurrentSelect.CurrentTerm)));
+				}
+				Student* Point2Student = Students.getStudentHandle(Students.Find(CurrentSelect.StudentId));
+				Term* Point2Term = Point2Student->getTermHandle(Point2Student->getNumberOfTerm(CurrentSelect.CurrentYear, CurrentSelect.CurrentTerm));
+				string LessonName = string(argv[4]);//Attention
+				int LessonRank = Point2Term->Find(LessonName);
+				Point2Term->print(LessonRank);
+			}
+			else if (!MY_strcmp("-t", argv[3], false)) {
+				if (CurrentSelect.Selected == false) {
+					throwError(NOT_HAVE_SELECTED, "Find Lesson", string("Now You Have Selected Student ") + string(to_string(CurrentSelect.StudentId)) + string(" Year ") + string(to_string(CurrentSelect.CurrentYear)) + string(" Term ") + string(to_string(CurrentSelect.CurrentTerm)));
+				}
+				Student* Point2Student = Students.getStudentHandle(Students.Find(CurrentSelect.StudentId));
+				Term* Point2Term = Point2Student->getTermHandle(Point2Student->getNumberOfTerm(CurrentSelect.CurrentYear, CurrentSelect.CurrentTerm));
+				int Type = atoi(argv[4]);//Attention
+				vector<int> LessonRanks;
+				for (int i = 0; i < Point2Term->getNumberOfLessonRefer(); i++) {
+					LessonRanks.push_back(Point2Term->Find(Type, argv[3], i));
+				}
+				//大概没有一节课一天上两次吧
+				for (auto j : LessonRanks) {
+					if (LessonRanks[j] > Point2Term->getNumberOfLessonRefer() || LessonRanks[j] < 0)
+						continue;
+					Point2Term->print(LessonRanks[j]);
+				}
+			}
+			else if (!MY_strcmp("-r", argv[3], false)) {
+				if (CurrentSelect.Selected == false) {
+					throwError(NOT_HAVE_SELECTED, "Find Lesson", string("Now You Have Selected Student ") + string(to_string(CurrentSelect.StudentId)) + string(" Year ") + string(to_string(CurrentSelect.CurrentYear)) + string(" Term ") + string(to_string(CurrentSelect.CurrentTerm)));
+				}
+				Student* Point2Student = Students.getStudentHandle(Students.Find(CurrentSelect.StudentId));
+				Term* Point2Term = Point2Student->getTermHandle(Point2Student->getNumberOfTerm(CurrentSelect.CurrentYear, CurrentSelect.CurrentTerm));
+				int LessonRank = atoi(argv[4]) - 1;//Attention
+				if (LessonRank > Point2Term->getNumberOfLessonRefer() || LessonRank <= 0)
+					throwError(INVAILD_SELECTION, "Find Lesson", argv[4]);
+				Point2Term->print(LessonRank);
+			}
+			else {
+				throwError(INVAILD_INPUT, "Find Lesson", string("No Matching Argv"));
+			}
+		}
+		else if (!MY_strcmp("rank", argv[2])) {
+			int n = atoi(argv[3]);
+			int StudentId;
+			if (n <= 0 || n > Students.getTotalStudentNumberRefer()) {
+				throwError(INVAILD_INPUT, "Select Student", argv[3]);
+			}
+			if (!(StudentId = (Students.getStudentHandle(n - 1)->getStudentId()))) {
+				throwError(INVAILD_SELECTION, "Select Student", argv[3]);
+			}
+			Students.Find(StudentId);
+		}
+		else {
+			throwError(INVAILD_INPUT, "Deletion", argv[2]);
+		}
+	}
     return 0;
 }
 int sort(int argc, char *argv[])
 {
+	if (argc <= 3) {
+		help({ "sort" });
+	}
+	if (argc == 4 || argc==5) {
+		if (!MY_strcmp("student", argv[2])) {
+			if (!MY_strcmp("-i", argv[3], false)) {
+				if (argc == 5) {
+					if (!strcasecmp(argv[4], "0"))
+						Students.sort("-i", true);
+					else if (!strcasecmp(argv[4], "1"))
+						Students.sort("-i", false);
+				}
+				Students.sort("-i",true);
+			}
+			else if (!MY_strcmp("-n", argv[3], false)) {
+				if (argc == 5) {
+					if (!strcasecmp(argv[4], "0"))
+						Students.sort("-n", true);
+					else if (!strcasecmp(argv[4], "1"))
+						Students.sort("-n", false);
+				}
+				Students.sort("-n", true);
+			}
+			else if (!MY_strcmp("-r", argv[3], false)) {
+
+			}
+			else {
+				throwError(INVAILD_INPUT, "Find Student", string("No Matching Argv"));
+			}
+		}
+		else if (!MY_strcmp("lesson", argv[2])) {
+			if (!MY_strcmp("-w", argv[3], false)) {
+
+			}
+			else if (!MY_strcmp("-n", argv[3], false)) {
+
+			}
+			else if (!MY_strcmp("-t", argv[3], false)) {
+
+			}
+			else if (!MY_strcmp("-r", argv[3], false)) {
+
+			}
+			else {
+
+			}
+		}
+		else if (!MY_strcmp("rank", argv[2])) {
+
+		}
+		else {
+			throwError(INVAILD_INPUT, "Deletion", argv[2]);
+		}
+	}
     return 0;
 }
 int print(int argc, char *argv[])

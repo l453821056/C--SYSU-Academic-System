@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 #include <cstdio>
 #include <iomanip>
 #include <sstream>
@@ -23,6 +24,7 @@ using namespace std;
 #define ACCESS_VIOLATION 0x04
 #define ACCESS_UNREASONABLE 0x08
 #define STORAGE_FULL 0x0F
+#define NOT_FOUND_LESSON 0x00
 #define NOT_FOUND_STUDENTID 0x00
 #define INVAILD_SELECTION -1
 #define RESET   "\033[0m"
@@ -57,7 +59,6 @@ int promote(string Content);
 int vaildStudentId(const char InputStudentId[]);
 int vaildTerm(const char InputTerm[]);
 int vaildYear(const char InputYear[]);
-int MY_Find(const string Method, const string Content);
 int MY_strcmp(const char *Command, const char *Input, bool EnableShort=true);
 void throwError(int ErrorLevel,string ErrorProcedure, string ErrorMessage);
 void throwError(int ErrorLevel,string ErrorProcedure, const char *agrv);

@@ -119,10 +119,101 @@ int Term::print()
 	cout << CYAN << "  序号" << "  课程名           " << "  类型" << "  学分" << "    老师" << "  成绩" <<RESET<<endl;
         // cout  << "     " << "  英语学术阅读与写作I" << "  公必" << "  1   " << "12345678"<< "  暂无" <<  
 	for (int i = 0; i < NumberOfLesson; i++) {
-		cout << setfill(' ') <<"  "<< setw(4) << i << "  " << setw(22) << Lessons[i].Name << "  " << setw(4) << LessonType[Lessons[i].Type-1] << "  " << setw(4) << Lessons[i].Credit << "  " << setw(8) << Lessons[i].TeacherName << "  " << Lessons[i].getGrade() << endl;
+		cout << setfill(' ') <<"  "<< setw(4) << i+1 <<left <<"  " << setw(22) << Lessons[i].Name << "  " << setw(4) << LessonType[Lessons[i].Type-1] << "  " << setw(4) << Lessons[i].Credit << "  " << setw(8) << Lessons[i].TeacherName << "  " << Lessons[i].getGrade() << endl;
 		for (int j = 0; j < Lessons[i].WeekTimes; j ++) {
 			cout << CYAN << "  上课时间" << j + 1 << "：" << RESET << Lessons[i].GetTime(Lessons[i].StartTime[j]) << CYAN << "  地点：" << Lessons[i].Place[j] << RESET << endl;
 		}
 	}
     return 0;
+}
+int Term::print(int Rank)
+{
+	cout << CYAN << "  序号" << "  课程名           " << "  类型" << "  学分" << "    老师" << "  成绩" << RESET << endl;
+	// cout  << "     " << "  英语学术阅读与写作I" << "  公必" << "  1   " << "12345678"<< "  暂无" <<  
+		cout << setfill(' ') << "  " << setw(4) << Rank + 1 << left << "  " << setw(22) << Lessons[Rank].Name << "  " << setw(4) << LessonType[Lessons[Rank].Type - 1] << "  " << setw(4) << Lessons[Rank].Credit << "  " << setw(8) << Lessons[Rank].TeacherName << "  " << Lessons[Rank].getGrade() << endl;
+		for (int j = 0; j < Lessons[Rank].WeekTimes; j++) {
+			cout << CYAN << "  上课时间" << j + 1 << "：" << RESET << Lessons[Rank].GetTime(Lessons[Rank].StartTime[j]) << CYAN << "  地点：" << Lessons[Rank].Place[j] << RESET << endl;
+	}
+	return 0;
+}
+int Term::del(int n)
+{
+	vector<Lesson>::iterator it = Lessons.begin() + n;
+	Lessons.erase(it);
+	Lesson temp;
+	Lessons.push_back(temp);
+	getNumberOfLessonRefer()--;
+	return 0;
+}
+int Term::Find(int Rank, const char* Mode, int LastSearch)
+{
+	if (!strcasecmp(Mode,"-r")) {
+		//bool found = false;
+		//for (int i = 0; i<getNumberOfLessonRefer(); i++) {
+		//	if (this->getLessonHandle(i)-> == StudentId) {
+		//		found = true;
+		//		return i;
+		//	}
+		//}
+		//if (!found)
+		//	return NOT_FOUND_STUDENTID;
+		return Rank;
+	}
+	else if (!strcasecmp(Mode,"-w")) {
+		bool found = false;
+		for (int i = LastSearch; i<getNumberOfLessonRefer(); i++) {
+			for (int j = 0; j < this->getLessonHandle(i)->WeekTimes; j++) {
+				if (this->getLessonHandle(i)->Weekday[j] == Rank) {
+					found = true;
+					return i;
+				}
+			}
+		}
+		if (!found)
+			return NOT_FOUND_LESSON;
+	}
+	else if (!strcasecmp(Mode,"-t")) {
+		bool found = false;
+		for (int i = LastSearch; i<getNumberOfLessonRefer(); i++) {
+			if (this->getLessonHandle(i)->Type == Rank) {
+				found = true;
+				return i;
+			}
+		}
+		if (!found)
+			return NOT_FOUND_LESSON;
+	}
+
+	else {
+		return 0;
+	}
+}
+int Term::Find(string Name, const char* Mode, int LastSearch)
+{
+	if (!strcasecmp(Mode,"-r")) {
+		//bool found = false;
+		//for (int i = 0; i<getNumberOfLessonRefer(); i++) {
+		//	if (this->getLessonHandle(i)-> == StudentId) {
+		//		found = true;
+		//		return i;
+		//	}
+		//}
+		//if (!found)
+		//	return NOT_FOUND_STUDENTID;
+		return Rank;
+	}
+	else if(!strcasecmp(Mode,"-n")) {
+		bool found = false;
+		for (int i = LastSearch; i<getNumberOfLessonRefer(); i++) {
+			if (this->getLessonHandle(i)->Name == Name) {
+				found = true;
+				return i;
+			}
+		}
+		if (!found)
+			return NOT_FOUND_LESSON;
+	}
+	else {
+		return 0;
+	}
 }

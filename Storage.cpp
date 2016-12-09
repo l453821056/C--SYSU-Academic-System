@@ -69,7 +69,7 @@ int Storage::Add()
 	promote("Input Student Name");
     cin>>Input;
     this->getStudentHandle(getTotalStudentNumberRefer())->setName(Input);
-	cout <<"请输入学院"<<endl;
+/*	cout <<"请输入学院"<<endl;
     while(!OK){
 		promote("Input School Name");
         cin >>Input;
@@ -96,20 +96,42 @@ int Storage::Add()
             this->getStudentHandle(getTotalStudentNumberRefer())->setMajor(Input);
         }
     }
+	*/
     getTotalStudentNumberRefer()++;
 }
-int Storage::Find(int StudentId)
+int Storage::Find(int StudentId, const char* Mode, int LastSearch)
 {
-    bool found=false;
-    for(int i=0;i<getTotalStudentNumberRefer();i++)
-    {
-        if(this->getStudentHandle(i)->getStudentId()==StudentId){
-            found=true;
-            return i;
-        }
-    }
-    if(!found)
-        return NOT_FOUND_STUDENTID;
+	if (!strcasecmp(Mode,"-i")) {
+		bool found = false;
+		for (int i = LastSearch; i<getTotalStudentNumberRefer(); i++) {
+			if (this->getStudentHandle(i)->getStudentId() == StudentId) {
+				found = true;
+				return i;
+			}
+		}
+		if (!found)
+			return NOT_FOUND_STUDENTID;
+	}
+	else{
+		return 0;
+	}
+}
+int Storage::Find(string Name, const char* Mode, int LastSearch)
+{
+	if (!strcasecmp(Mode,"-n")) {
+		bool found = false;
+		for (int i = LastSearch; i<getTotalStudentNumberRefer(); i++) {
+			if (this->getStudentHandle(i)->getName() == Name) {
+				found = true;
+				return i;
+			}
+		}
+		if (!found)
+			return NOT_FOUND_STUDENTID;
+	}
+	else {
+		return 0;
+	}
 }
 int Storage::print()
 {
@@ -121,4 +143,43 @@ int Storage::print()
         cout<<left<<setfill(' ')<< "  "<<setw(4)<<i+1<<setw(2)<<"  "<<setw(8)<<Students[i].getName()<< setw(4) << "    " << setw(8)<<Students[i].getStudentId()<< setw(2) << "  " << setw(22)<<Students[i].getSchool()<< setw(2) << "  " << setw(20)<<Students[i].getMajor()<<endl;
     }
     return 0;
+}
+int Storage::print(int Rank)
+{
+	cout << CYAN << "  序号" << "  姓名    " << "  学号    " << "  学院                  " << "  专业                " << RESET << endl;
+	//  cout <<CYAN<<"  256 "<<"  木子雨辰"<<"  15323032"<<"  政治与公共事务管理学院"<<"  图书情报与档案管理类"
+	cout << "  ----" << "  --------" << "  --------" << "  ----------------------" << "  --------------------" << endl;
+	cout << left << setfill(' ') << "  " << setw(4) << Rank + 1 << setw(2) << "  " << setw(8) << Students[Rank].getName() << setw(4) << "    " << setw(8) << Students[Rank].getStudentId() << setw(2) << "  " << setw(22) << Students[Rank].getSchool() << setw(2) << "  " << setw(20) << Students[Rank].getMajor() << endl;
+	return 0;
+}
+int Storage::del(int StudentId) {
+	int n = Find(StudentId);
+	if (StudentId == CurrentSelect.StudentId)
+		CurrentSelect.Selected = false;
+	vector<Student>::iterator it = Students.begin() + n;
+	Students.erase(it);
+	getTotalStudentNumberRefer()--;
+	return 0;
+}
+
+int Storage::sort(const char* Mode, bool ASC) {
+	if (!strcasecmp(Mode, "-n")) {
+		if (ASC == true) {
+			std::sort(Students.begin(), Students.end(), [](Student a, Student b) {return (a.Name < b.Name) ? 1 : 0; });
+		}
+		else {
+			std::sort(Students.begin(), Students.end(), [](Student a, Student b) {return (a.Name > b.Name) ? 1 : 0; });
+		}
+	}
+	else if((!strcasecmp(Mode, "-i"))){
+		if (ASC == true) {
+			std::sort(Students.begin(), Students.end(), [](Student a, Student b) {return (a.StudentId < b.StudentId) ? 1 : 0; });
+		}
+		else {
+			std::sort(Students.begin(), Students.end(), [](Student a, Student b) {return (a.StudentId > b.StudentId) ? 1 : 0; });
+		}
+	}
+	else {
+
+	}
 }

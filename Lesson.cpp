@@ -108,29 +108,29 @@ int Lesson::init()
 		i--;
     }
 	OK = false;
-    cout <<"请输入课程开始周数"<<endl;
-	while (!OK) {
-	promote("Input");
-	cin>>Result;
-	if (Result >= 1 && Result <= 20) {
-        StartWeek=Result;
-		OK = true;
-	}
-    else
-        throwWarning(INVAILD_INPUT,"Add Lesson StartWeek",to_string(Result).c_str());
-	}
-    cout <<"请输入课程结束周数"<<endl;
-	OK = false;
-	while (!OK) {
-		promote("Input");
-		cin >> Result;
-		if (Result >= 1 && Result <= 20) {
-			EndWeek = Result;
-			OK = true;
-		}
-		else
-			throwWarning(INVAILD_INPUT, "Add Lesson EndWeek", to_string(Result).c_str());
-	}
+ //   cout <<"请输入课程开始周数"<<endl;
+	//while (!OK) {
+	//promote("Input");
+	//cin>>Result;
+	//if (Result >= 1 && Result <= 20) {
+ //       StartWeek=Result;
+	//	OK = true;
+	//}
+ //   else
+ //       throwWarning(INVAILD_INPUT,"Add Lesson StartWeek",to_string(Result).c_str());
+	//}
+ //   cout <<"请输入课程结束周数"<<endl;
+	//OK = false;
+	//while (!OK) {
+	//	promote("Input");
+	//	cin >> Result;
+	//	if (Result >= 1 && Result <= 20) {
+	//		EndWeek = Result;
+	//		OK = true;
+	//	}
+	//	else
+	//		throwWarning(INVAILD_INPUT, "Add Lesson EndWeek", to_string(Result).c_str());
+	//}
 	cout<<"请输入老师名字"<<endl;
 	promote("Input");
     cin>>Input;
