@@ -47,6 +47,12 @@ using namespace std;
 #define MAX_LESSON_OF_TERM 16//128
 #define MAX_TERM_OF_STUDENT 16//32
 #define DURATION_OF_LESSON 45
+#ifdef _MSC_VER
+static const char *ZH_CN_LOCALE_STRING = "Chinese_china";
+#else
+static const char *ZH_CN_LOCALE_STRING = "zh_CN.utf8";
+#endif
+bool zh_CN_less_than(const string &s1, const string &s2);
 char* strcpy_s(char *dest,size_t destsz, const char *src);
 int select(int argc, char *argv[]);
 int add(int argc, char *argv[]);

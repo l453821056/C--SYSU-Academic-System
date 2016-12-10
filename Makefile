@@ -16,4 +16,5 @@ Lesson.o: Backend.h Lesson.h
 	$(compiler) -c Lesson.cpp
 clean:
 	rm MUKS $(objects)
-	
+valgrind: $(objects)
+	$(compiler) -O0 $(objects) -o MUKS

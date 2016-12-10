@@ -165,10 +165,10 @@ int Storage::del(int StudentId) {
 int Storage::sort(const char* Mode, bool ASC) {
 	if (!strcasecmp(Mode, "-n")) {
 		if (ASC == true) {
-			std::sort(Students.begin(), Students.end(), [](Student a, Student b) {return (a.Name < b.Name) ? 1 : 0; });
+			std::sort(Students.begin(), Students.end(), [](Student a, Student b) {return zh_CN_less_than(a.Name,b.Name) ? 1 : 0; });
 		}
 		else {
-			std::sort(Students.begin(), Students.end(), [](Student a, Student b) {return (a.Name > b.Name) ? 1 : 0; });
+			std::sort(Students.begin(), Students.end(), [](Student a, Student b) {return zh_CN_less_than(a.Name, b.Name) ? 0 : 1; });
 		}
 	}
 	else if((!strcasecmp(Mode, "-i"))){

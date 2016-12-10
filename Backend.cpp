@@ -49,6 +49,14 @@ int MY_strcmp(const char* Command, const char* Input, bool EnableShort)
     else
         return (strcmp(Input,Command)&&strcasecmp(Input,Command));
 }
+static const locale zh_CN_locale = locale(ZH_CN_LOCALE_STRING);
+static const collate<char>& zh_CN_collate = use_facet<collate<char> >(zh_CN_locale);
+bool zh_CN_less_than(const string & s1, const string & s2)
+{
+	const char *pb1 = s1.data();
+	const char *pb2 = s2.data();
+	return (zh_CN_collate.compare(pb1, pb1 + s1.size(), pb2, pb2 + s2.size()) < 0);
+}
 
 char* strcpy_s(char *dest,size_t destsz, const char *src)
 {
