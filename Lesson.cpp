@@ -136,6 +136,11 @@ int Lesson::init()
     cin>>Input;
     TeacherName=Input;
 
+	cout << "请输入成绩" << endl;
+	promote("Input");
+	cin >> Result;
+	Grade_Ori = Result;
+	Grade = (Grade_Ori - 50) / 10;
     return 0;
     }
 

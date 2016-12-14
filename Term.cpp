@@ -116,13 +116,14 @@ int Term::Add()
 }
 int Term::print()
 {
-	cout << CYAN << "  序号" << "  课程名           " <<left<< "  类型" <<right<< "  学分" << "  老师  " <<left<< "    成绩" <<RESET<<endl;
-        // cout  << "     " << "  英语学术阅读与写作I" << "  公必" << "  1   " << "12345678"<< "  暂无" <<  
+	cout << CYAN << "  序号" << "  课程名                  "<<RESET<<endl;
+        // cout  << "      " << "  英语学术阅读与写作I      "       << "  公必" << "  1   " << "12345678"<< "  暂无" <<  
 
 	for (int i = 0; i < NumberOfLesson; i++) {
-		cout << setfill(' ') <<"  "<< setw(4) << i+1 <<left <<"  " << setw(19) << Lessons[i].Name << "  " << setw(4) << LessonType[Lessons[i].Type-1] << "  " << setw(4) << Lessons[i].Credit << "  " << setw(8) << Lessons[i].TeacherName << "  " << Lessons[i].getGrade() << endl;
+		cout << right<<setfill(' ') <<"  "<<BLUE<< setw(4) << i+1 <<left <<"  " << setw(25) << Lessons[i].Name <<RESET<<endl;
+        cout <<left  <<CYAN<< "        类型:" <<setw(4) <<RESET<< LessonType[Lessons[i].Type-1]<<right<<CYAN<< "  学分:" <<RESET<<setw(4) << Lessons[i].Credit<<CYAN<<  "  老师:" <<RESET<<setw(8) << Lessons[i].TeacherName <<left<<CYAN<< "    成绩:" <<RESET<<setw(4)<< Lessons[i].getGrade()<<RESET<<endl;
 		for (int j = 0; j < Lessons[i].WeekTimes; j ++) {
-			cout << CYAN << "  上课时间" << j + 1 << "：" << RESET << Lessons[i].GetTime(Lessons[i].StartTime[j]) << CYAN << "  地点：" << RESET << Lessons[i].Place[j]  << endl;
+			cout << CYAN << "        上课时间" << j + 1 << "：" << RESET<<setw(5) << Lessons[i].GetTime(Lessons[i].StartTime[j]) << CYAN << "  地点：" << RESET << Lessons[i].Place[j]  <<RESET <<endl;
 		}
 	}
     return 0;

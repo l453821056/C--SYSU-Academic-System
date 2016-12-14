@@ -179,7 +179,7 @@ int Student::print()
         for(int j=1;j<=getTotalTermOfYear(i);j++)
         {
         int TotalRank=getNumberOfTerm(i,j);
-        cout<<setfill(' ') << "  " <<setw(4)<<TotalRank << "  " <<i<<"-"<<i+1<<setw(6)<<j<<setw(10)<<Terms[TotalRank].getNumberOfLessonRefer();
+        cout<<setfill(' ') <<right<< "  " <<setw(4)<<TotalRank << "  " <<i<<"-"<<i+1<<setw(6)<<j<<setw(10)<<Terms[TotalRank].getNumberOfLessonRefer();
         cout<<"  "<<setw(4)<<Terms[TotalRank].getCredit()<<setw(10)<<Terms[TotalRank].getAverage()<<setw(12)<<Terms[TotalRank].getAverageExpectPubEle()<<RESET<<endl;
         }
     }

@@ -17,7 +17,8 @@ class Lesson{
 	string Place[MAX_WEEK_TIMES];
     bool Finished;
     int Credit;
-    int Grade;
+    int Grade_Ori;
+	double Grade;
     string GetTime(int StartTime);
     Lesson();
     int init();
