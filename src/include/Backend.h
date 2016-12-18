@@ -15,7 +15,7 @@ using namespace std;
 #define MAX_COMMAND 256//256
 #define MAX_COMMAND_CHAR 256
 #define MAX_STUDENTS_NUM 8//256
-#define MAX_WEEK_TIMES 4
+#define MAX_WEEK_TIMES 10
 #define UTF8_CHINESE_BYTE 3
 #define MAX_LENGTH_OF_MAJOR 10*UTF8_CHINESE_BYTE
 #define MAX_LENGTH_OF_SCHOOL 11*UTF8_CHINESE_BYTE
@@ -24,7 +24,7 @@ using namespace std;
 #define ACCESS_VIOLATION 0x04
 #define ACCESS_UNREASONABLE 0x08
 #define STORAGE_FULL 0x0F
-#define NOT_FOUND_LESSON 0x00
+#define NOT_FOUND_LESSON 0xFFFFFFFF
 #define NOT_FOUND_STUDENTID 0x00
 #define INVAILD_SELECTION -1
 #define RESET   "\033[0m"
@@ -72,6 +72,8 @@ namespace readline_compatible {
 	unsigned load(const std::vector<std::string>& input);
 	unsigned help(const std::vector<std::string>& input);
 	unsigned save(const std::vector<std::string>& input);
+	unsigned set(const std::vector<std::string>& input);
+	unsigned get(const std::vector<std::string>& input);
 }
 
 int promote();

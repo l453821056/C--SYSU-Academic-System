@@ -1,7 +1,6 @@
 #include <iostream>
-#include "Console.hpp"
-#include "Backend.h"
-#include "main.h"
+#include "include/Console.hpp"
+#include "include/Backend.h"
 namespace cr = CppReadline;
 namespace rc = readline_compatible;
 using ret = cr::Console::ReturnCode;
@@ -9,7 +8,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 	Time Current;
-	cout << "欢迎使用中大微教务系统 " << endl;
+	cout << "欢迎使用中大微课表 " << endl;
 	cout << "现在时间是:" << Current.getYear() << "年" << Current.getMonth() << "月" << Current.getDay() << "日" << endl;
 	cout << "输入 " << BOLDMAGENTA << "help " << RESET << "可查看帮助文档!" << endl;
 	cr::Console c("");
@@ -22,6 +21,8 @@ int main(int argc, char *argv[])
 	c.registerCommand("load", rc::load);
 	c.registerCommand("help", rc::help);
 	c.registerCommand("save", rc::save);
+	c.registerCommand("set", rc::set);
+	c.registerCommand("get", rc::get);
 	ifstream is;
 	is.open(".wjwinit");
 	if (is) {

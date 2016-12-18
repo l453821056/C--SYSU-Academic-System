@@ -1,9 +1,9 @@
-#include "Storage.h"
+#include "include/Storage.h"
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "json/json.h"
+#include "include/json.h"
 using namespace std;
 namespace js = Json;
 Selection CurrentSelect;
@@ -189,7 +189,12 @@ int origin::add(int argc, char *argv[])
             Term* Point2Term=Point2Student->getTermHandle(Point2Student->getNumberOfTerm(CurrentSelect.CurrentYear,CurrentSelect.CurrentTerm));
 			Point2Term->LessonsChanged = true;
 			Point2Student->TermsChanged = true;
-            Point2Term->Add();
+			if (Point2Term->getNumberOfLessonRefer() == MAX_LESSON_OF_TERM)
+				throwError(STORAGE_FULL, "Add Lesson", string("You CANNOT Storage More Lesson in This Term"));
+			Lesson *Point2Lesson = Point2Term->getLessonHandle(Point2Term->getNumberOfLessonRefer());
+			Point2Lesson->AttachObserver(Point2Student);
+			Point2Term->Add();
+			//给自己挖的坑...跪着也要填上
         }
         else{
             throwError(INVAILD_INPUT,"Addition",argv[i]);
@@ -305,7 +310,11 @@ int origin::find(int argc, char *argv[])
 				int Week = atoi(argv[4]);//Attention
 				vector<int> LessonRanks;
 				for (int i = 0; i < Point2Term->getNumberOfLessonRefer(); i++) {
-					LessonRanks.push_back(Point2Term->Find(Week, argv[3],i));
+					int n = Point2Term->Find(Week, argv[3], i);
+					if (n != NOT_FOUND_LESSON) {
+						LessonRanks.push_back(n);
+						i = n;
+					}
 				}
 				//大概没有一节课一天上两次吧
 				for (auto j : LessonRanks) {
@@ -333,7 +342,11 @@ int origin::find(int argc, char *argv[])
 				int Type = atoi(argv[4]);//Attention
 				vector<int> LessonRanks;
 				for (int i = 0; i < Point2Term->getNumberOfLessonRefer(); i++) {
-					LessonRanks.push_back(Point2Term->Find(Type, argv[3], i));
+					int n = Point2Term->Find(Type, argv[3], i);
+					if (n != NOT_FOUND_LESSON) {
+						LessonRanks.push_back(n);
+						i = n;
+					}
 				}
 				//大概没有一节课一天上两次吧
 				for (auto j : LessonRanks) {
@@ -403,28 +416,48 @@ int origin::sort(int argc, char *argv[])
 
 			}
 			else {
-				throwError(INVAILD_INPUT, "Find Student", string("No Matching Argv"));
+				throwError(INVAILD_INPUT, "Sort Student", string("No Matching Argv"));
 			}
 		}
 		else if (!MY_strcmp("lesson", argv[2])) {
+			if (CurrentSelect.Selected == false) {
+				throwError(NOT_HAVE_SELECTED, "sort lesson", string("Now You Have Selected Student ") + string(to_string(CurrentSelect.StudentId)) + string(" Year ") + string(to_string(CurrentSelect.CurrentYear)) + string(" Term ") + string(to_string(CurrentSelect.CurrentTerm)));
+			}
+			Student* Point2Student = Students.getStudentHandle(Students.Find(CurrentSelect.StudentId));
+			Term* Point2Term = Point2Student->getTermHandle(Point2Student->getNumberOfTerm(CurrentSelect.CurrentYear, CurrentSelect.CurrentTerm));
 			if (!MY_strcmp("-w", argv[3], false)) {
+				if (argc == 5) {
+					if (!strcasecmp(argv[4], "0"))
+						Point2Term->sort("-w", true);
+					else if (!strcasecmp(argv[4], "1"))
+						Point2Term->sort("-w", false);
+				}
+				Point2Term->sort("-w", true);
 
 			}
 			else if (!MY_strcmp("-n", argv[3], false)) {
+				if (argc == 5) {
+				if (!strcasecmp(argv[4], "0"))
+					Point2Term->sort("-n", true);
+				else if (!strcasecmp(argv[4], "1"))
+					Point2Term->sort("-n", false);
+			}
+			Point2Term->sort("-n", true);
 
 			}
 			else if (!MY_strcmp("-t", argv[3], false)) {
-
+				if (argc == 5) {
+				if (!strcasecmp(argv[4], "0"))
+					Point2Term->sort("-t", true);
+				else if (!strcasecmp(argv[4], "1"))
+					Point2Term->sort("-t", false);
 			}
-			else if (!MY_strcmp("-r", argv[3], false)) {
+			Point2Term->sort("-t", true);
 
 			}
 			else {
-
+				throwError(INVAILD_INPUT, "Sort Student", string("No Matching Argv"));
 			}
-		}
-		else if (!MY_strcmp("rank", argv[2])) {
-
 		}
 		else {
 			throwError(INVAILD_INPUT, "Deletion", argv[2]);
@@ -607,11 +640,13 @@ unsigned readline_compatible::load(const std::vector<std::string>& input)
 				temp.EndTime[i] = atoi(EndTiems[i+1].c_str());
 			}
 			if (Root["HasGrade"].asInt() != js::nullValue) {
-				temp.Grade_Ori = Root["Grade_Ori"].asInt();
+				temp.Grade_Ori = Root["Grade_Ori"].asDouble();
+				temp.Grade = (temp.Grade_Ori - 50) / 10.0;
 				temp.Finished = true;
 			}
 			else {
 				temp.Grade_Ori = 0;
+				temp.Grade = 0;
 				temp.Finished = false;
 			}
 			int StudentRank = Students.Find(CurrentSelect.StudentId, "-i");
@@ -620,6 +655,11 @@ unsigned readline_compatible::load(const std::vector<std::string>& input)
 			Term* Point2Term = Point2Student->getTermHandle(TermRank);
 			Lesson* Point2Lesson = &Point2Term->Lessons[Point2Term->getNumberOfLessonRefer()];
 			*Point2Lesson = temp;
+			Point2Lesson->AttachObserver(Point2Student);
+			Point2Lesson->AttachObserver(Point2Term);
+			if (Point2Lesson->Finished) {
+				Point2Lesson->UpdateScore();
+			}
 			//Point2Lesson->Finished = true;
 			//Point2Lesson->Name = temp.Name;
 			//Point2Lesson->Year = temp.Year;
@@ -649,11 +689,12 @@ unsigned readline_compatible::help(const std::vector<std::string>& argv) {
 		cout << "可用功能    " << "用法" << endl;
 		cout << "select      " << "选择学生，学年，学期" << endl;
 		cout << "add         " << "添加学生课程课程" << endl;
+		cout << "get         " << "从教务处网站在线获取学生课程课程" << endl;
 		cout << "print       " << "显示学生信息，各学期总体情况，各学期课程安排" << endl;
 		cout << "delete      " << "删除学生或课程" << endl;
 		cout << "sort        " << "对学生或课程进行排序" << endl;
 		cout << "run         " << "执行批处理脚本" << endl;
-		cout << "load        " << "加载从教务系统获取的学生全部课程信息" << endl;
+		cout << "load        " << "后接json格式课程数据文件路径，加载课程数据" << endl;
 		cout << "find        " << "搜索指定学生或课程" << endl;
 		cout << "save        " << "保存当前学生信息到[StudentID].json" << endl;
 	}
@@ -683,14 +724,39 @@ unsigned readline_compatible::help(const std::vector<std::string>& argv) {
 			cout << "lesson      " << "后接课程编号，删除指定课程" << RESET << endl;
 			cout << "rank        " << "后接学生编号，删除指定学生" << endl;
 		}
+		else if (argv[1] == string("sort")) {
+			cout << "可用参数    " << "用法" << RESET << endl;
+			cout << "student     " << "后接排序依据和排序方式，对学生进行排序" << BOLDMAGENTA << "delete student 15323032" << RESET << RESET << endl;
+			cout << "可用的排序方式有：" << "-n：根据姓名排序；-i：根据学号排序" << endl;
+			cout << "可用的排序方式有：" << "0：升序；1：降序" << endl;
+			cout << "lesson      " << "后接排序依据和排序方式，对课程进行排序" << RESET << endl;
+			cout << "可用的排序方式有：" << "-n：根据课程名排序；-w：根据每周第一次课的星期数排序；-t：根据类型排序" << endl;
+			cout << "可用的排序方式有：" << "0：升序；1：降序" << endl;
+		}
+		else if (argv[1] == string("find")) {
+			cout << "可用参数    " << "用法" << RESET << endl;
+			cout << "student     " << "后接搜索方式，搜索指定的学生" << BOLDMAGENTA << "delete student 15323032" << RESET << RESET << endl;
+			cout << "可用的搜索依据有：" << "-n：根据姓名搜索；-i：根据学号搜索" << endl;
+			cout << "lesson      " << "后接搜索方式，搜索指定的课程" << RESET << endl;
+			cout << "可用的排序方式有：" << "-n：根据课程名搜索；-w：搜索每星期某天的课程；-t：根据类型搜索" << endl;
+		}
+		else if (argv[1] == string("delete")) {
+			cout << "后接脚本文件的路径，运行指定脚本" << endl;
+		}
+		else if (argv[1] == string("load")){
+			cout << "后接json格式课程数据文件路径，加载课程数据" << endl;
+		}
+		else if (argv[1] == string("save")) {
+			cout << "保存当前学生信息到[StudentID].json" << endl;
+		}
 		else {
 			found = false;
 		}
 	}
 	if (!found) {
-		cout << "没有找到" << BOLDMAGENTA << (*(argv.begin())) << RESET << "的帮助。";
+		cout << "在模块" << BOLDMAGENTA << (*(argv.begin())) << RESET << "中。";
 		for (auto beg = argv.begin() + 1; beg != argv.end(); ++beg)
-			cout << "在模块" << BOLDMAGENTA << *beg << RESET << "中";
+			cout << "没有找到" << BOLDMAGENTA << *beg << RESET ;
 		cout << endl;
 		return 0;
 	}
@@ -738,6 +804,10 @@ unsigned readline_compatible::save(const std::vector<std::string>& input) {
 				Root["HasGrade"] = 1;
 				Root["Grade_Ori"] = temp.Grade_Ori;
 			}
+			else {
+				Root["HasGrade"] = js::nullValue;
+				Root["Grade_Ori"] = 0;
+			}
 			string str_writer = Writer.write(Root);
 			os << str_writer;
 			os << endl;
@@ -745,3 +815,16 @@ unsigned readline_compatible::save(const std::vector<std::string>& input) {
 	}
 	os.close();
 }
+unsigned readline_compatible::set(const std::vector<std::string>& input) {
+	if (CurrentSelect.Selected == false) {
+		throwError(NOT_HAVE_SELECTED, "set grade", string("Now You Have Selected Student ") + string(to_string(CurrentSelect.StudentId)) + string(" Year ") + string(to_string(CurrentSelect.CurrentYear)) + string(" Term ") + string(to_string(CurrentSelect.CurrentTerm)));
+	}
+	Student* Point2Student = Students.getStudentHandle(Students.Find(CurrentSelect.StudentId));
+	Term* Point2Term = Point2Student->getTermHandle(Point2Student->getNumberOfTerm(CurrentSelect.CurrentYear, CurrentSelect.CurrentTerm));
+	Point2Term->setGrade();
+	Point2Student->TermsChanged = true;
+}
+unsigned readline_compatible::get(const std::vector<std::string>& input) {
+	system("python crawler.py");
+}
+

@@ -1,4 +1,4 @@
-#include "Storage.h"
+#include "include/Storage.h"
 int& Storage::getTotalStudentNumberRefer()
 {
     return TotalStudentNumber;
@@ -69,7 +69,7 @@ int Storage::Add()
 	promote("Input Student Name");
     cin>>Input;
     this->getStudentHandle(getTotalStudentNumberRefer())->setName(Input);
-/*	cout <<"请输入学院"<<endl;
+	cout <<"请输入学院"<<endl;
     while(!OK){
 		promote("Input School Name");
         cin >>Input;
@@ -96,7 +96,7 @@ int Storage::Add()
             this->getStudentHandle(getTotalStudentNumberRefer())->setMajor(Input);
         }
     }
-	*/
+	
     getTotalStudentNumberRefer()++;
 }
 int Storage::Add(int StudentId, string StudnetName) {

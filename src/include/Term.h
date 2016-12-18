@@ -1,12 +1,12 @@
 #ifndef TERM_H
 #define TERM_H
 #include "Lesson.h"
-class Term{
+class Term : public LessonObserver {
     private:
-        int Average;
-        int AverageExpectPubEle;
-        int TotalCredit;
-        int TotalCreditExpectPubEle;
+        double Average;
+        double AverageExpectPubEle;
+		double TotalCredit;
+		double TotalCreditExpectPubEle;
     public:
         int Year;
         int TotalRank;
@@ -19,10 +19,10 @@ class Term{
         int setRank(int Rank);
         int setTotalRank(int TotalRank);
         void reNew();
-        int getCredit();
-        int getCreditExpectPubEle();
-        int getAverage();
-        int getAverageExpectPubEle();
+		int getCredit();
+		int getCreditExpectPubEle();
+        double getAverage();
+        double getAverageExpectPubEle();
         int& getNumberOfLessonRefer();
 		Lesson * getLessonHandle(int n);
 		int TermRankOfLastTerm;
@@ -30,7 +30,13 @@ class Term{
         int print();
 		int print(int Rank);
 		int del(int n);
+		int setGrade();
 		int Find(int Rank, const char* Mode = string("-r").c_str(), int LastSearch=0);
 		int Find(string Name, const char* Mode = string("-n").c_str(),int LastSearch=0);
+		int sort(const char * Mode = string("-w").c_str(), bool ASC = true);
+		int RefreshGpa(const Lesson* lesson);
+		void Notify(const Lesson* lesson) override {
+			RefreshGpa(lesson);
+		}
 };
 #endif

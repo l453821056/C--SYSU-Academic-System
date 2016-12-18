@@ -1,4 +1,4 @@
-#include "Term.h"
+#include "include/Term.h"
 Term::Term(){
     NumberOfLesson=0;
     Year=1924;
@@ -36,25 +36,26 @@ int Term::setTotalRank(int TotalRank)
 
 void Term::reNew()
 {
-    if(LessonsChanged)
-    {
-        int SumOfCredit=0;
-        int SumOfGrade=0;
-        int SumOfCreditExpectPubEle=0;
-        int SumOfGradeExpectPubEle=0;
-        for(int i=0;i<NumberOfLesson;i++)
-        {
-            SumOfCredit+=Lessons[i].Credit;
-            SumOfGrade+=Lessons[i].Credit*Lessons[i].Grade;
-            SumOfCreditExpectPubEle+=(Lessons[i].Type==3?0:Lessons[i].Credit);
-            SumOfGradeExpectPubEle+=(Lessons[i].Type==3?0:Lessons[i].Credit*Lessons[i].Grade);
-        }
-        this->TotalCredit=SumOfCredit;
-        this->TotalCreditExpectPubEle=SumOfCreditExpectPubEle;
-        this->Average=SumOfGrade/SumOfCredit;
-        this->AverageExpectPubEle=SumOfGradeExpectPubEle/SumOfCreditExpectPubEle;
-        this->LessonsChanged=false;
-    }
+	//引入观察者模式后已经弃用
+    //if(LessonsChanged)
+    //{
+    //    double SumOfCredit=0;
+    //    double SumOfGrade=0;
+    //    double SumOfCreditExpectPubEle=0;
+    //    double SumOfGradeExpectPubEle=0;
+    //    for(int i=0;i<NumberOfLesson;i++)
+    //    {
+    //        SumOfCredit+=Lessons[i].Credit;
+    //        SumOfGrade+=Lessons[i].Credit*Lessons[i].Grade;
+    //        SumOfCreditExpectPubEle+=(Lessons[i].Type==3?0:Lessons[i].Credit);
+    //        SumOfGradeExpectPubEle+=(Lessons[i].Type==3?0:Lessons[i].Credit*Lessons[i].Grade);
+    //    }
+    //    this->TotalCredit=SumOfCredit;
+    //    this->TotalCreditExpectPubEle=SumOfCreditExpectPubEle;
+    //    this->Average=SumOfGrade/SumOfCredit;
+    //    this->AverageExpectPubEle=SumOfGradeExpectPubEle/SumOfCreditExpectPubEle;
+    //    this->LessonsChanged=false;
+    //}
 }
 int Term::getCredit()
 {
@@ -66,12 +67,12 @@ int Term::getCreditExpectPubEle()
     reNew();
     return TotalCreditExpectPubEle;
 }
-int Term::getAverage()
+double Term::getAverage()
 {
    reNew();
    return Average;
 }
-int Term::getAverageExpectPubEle()
+double Term::getAverageExpectPubEle()
 {
    reNew();
    return AverageExpectPubEle;
@@ -111,6 +112,7 @@ int Term::Add()
 		Lesson* Point2Lesson=this->getLessonHandle(getNumberOfLessonRefer());
 		Point2Lesson->Finished = true;
 		Point2Lesson->init();
+		Point2Lesson->AttachObserver(this);
 		getNumberOfLessonRefer()++;
 	}
 }
@@ -123,7 +125,7 @@ int Term::print()
 		cout << right<<setfill(' ') <<"  "<<BLUE<< setw(4) << i+1 <<left <<"  " << setw(25) << Lessons[i].Name <<RESET<<endl;
         cout <<left  <<CYAN<< "        类型:" <<setw(4) <<RESET<< LessonType[Lessons[i].Type-1]<<right<<CYAN<< "  学分:" <<RESET<<setw(4) << Lessons[i].Credit<<CYAN<<  "  老师:" <<RESET<<setw(8) << Lessons[i].TeacherName <<left<<CYAN<< "    成绩:" <<RESET<<setw(4)<< Lessons[i].getGrade()<<RESET<<endl;
 		for (int j = 0; j < Lessons[i].WeekTimes; j ++) {
-			cout << CYAN << "        上课时间" << j + 1 << "：" << RESET<<setw(5) << Lessons[i].GetTime(Lessons[i].StartTime[j]) << CYAN << "  地点：" << RESET << Lessons[i].Place[j]  <<RESET <<endl;
+			cout << CYAN << "        上课时间" << j + 1 << "：" << RESET << "周" << Lessons[i].Weekday[j] << " " <<setw(5) << Lessons[i].GetTime(Lessons[i].StartTime[j]) << CYAN << "  地点：" << RESET << Lessons[i].Place[j]  <<RESET <<endl;
 		}
 	}
     return 0;
@@ -134,7 +136,7 @@ int Term::print(int Rank)
 	// cout  << "     " << "  英语学术阅读与写作I" << "  公必" << "  1   " << "12345678"<< "  暂无" <<  
 		cout << setfill(' ') << "  " << setw(4) << Rank + 1 << left << "  " << setw(22) << Lessons[Rank].Name << "  " << setw(4) << LessonType[Lessons[Rank].Type - 1] << "  " << setw(4) << Lessons[Rank].Credit << "  " << setw(8) << Lessons[Rank].TeacherName << "  " << Lessons[Rank].getGrade() << endl;
 		for (int j = 0; j < Lessons[Rank].WeekTimes; j++) {
-			cout << CYAN << "  上课时间" << j + 1 << "：" << RESET << Lessons[Rank].GetTime(Lessons[Rank].StartTime[j]) << CYAN << "  地点：" << Lessons[Rank].Place[j] << RESET << endl;
+			cout << CYAN << "  上课时间" << j + 1 << "：" << RESET <<"周"<< Lessons[Rank].Weekday[j]<<" "<< Lessons[Rank].GetTime(Lessons[Rank].StartTime[j]) << CYAN << "  地点：" << Lessons[Rank].Place[j] << RESET << endl;
 	}
 	return 0;
 }
@@ -145,6 +147,27 @@ int Term::del(int n)
 	Lesson temp;
 	Lessons.push_back(temp);
 	getNumberOfLessonRefer()--;
+	return 0;
+}
+int Term::setGrade()
+{
+	for (int i = 0; i < NumberOfLesson; i++) {
+		print(i);
+		cout << "请输入该门课程成绩，暂无成绩则输入0" << endl;
+		bool OK = false;
+		int Input;
+		while (!OK) {
+			cin >> Input;
+			if (Input <= 100 && Input >= 0) {
+				Lessons[i].Finished = true;
+				Lessons[i].Grade_Ori = Input;
+				Lessons[i].Grade = (Lessons[i].Grade_Ori - 50) / 10.0;
+				LessonsChanged = true;
+				Lessons[i].UpdateScore();
+				OK = true;
+			}
+		}
+	}
 	return 0;
 }
 int Term::Find(int Rank, const char* Mode, int LastSearch)
@@ -185,7 +208,6 @@ int Term::Find(int Rank, const char* Mode, int LastSearch)
 		if (!found)
 			return NOT_FOUND_LESSON;
 	}
-
 	else {
 		return 0;
 	}
@@ -218,4 +240,44 @@ int Term::Find(string Name, const char* Mode, int LastSearch)
 	else {
 		return 0;
 	}
+}
+
+int Term::sort(const char * Mode, bool ASC)
+{
+	if (!strcasecmp(Mode, "-n")) {
+		if (ASC == true) {
+			std::sort(Lessons.begin(), Lessons.begin() + NumberOfLesson, [](Lesson a, Lesson b) {return zh_CN_less_than(a.Name, b.Name) ? 1 : 0; });
+		}
+		else {
+			std::sort(Lessons.begin(), Lessons.begin() + NumberOfLesson, [](Lesson a, Lesson b) {return zh_CN_less_than(a.Name, b.Name) ? 0 : 1; });
+		}
+	}
+	else if ((!strcasecmp(Mode, "-w"))) {
+		if (ASC == true) {
+			std::sort(Lessons.begin(), Lessons.begin() + NumberOfLesson, [](Lesson a, Lesson b) {return (a.Weekday[0] < b.Weekday[0]) ? 1 : 0; });
+		}
+		else {
+			std::sort(Lessons.begin(), Lessons.begin() + NumberOfLesson, [](Lesson a, Lesson b) {return (a.Weekday[0]  > b.Weekday[0]) ? 1 : 0; });
+		}
+	}
+	else if ((!strcasecmp(Mode, "-t"))) {
+		if (ASC == true) {
+			std::sort(Lessons.begin(), Lessons.begin() + NumberOfLesson, [](Lesson a, Lesson b) {return (a.Type < b.Type) ? 1 : 0; });
+		}
+		else {
+			std::sort(Lessons.begin(), Lessons.begin() + NumberOfLesson, [](Lesson a, Lesson b) {return (a.Type  > b.Type) ? 1 : 0; });
+		}
+	}
+	else {
+
+	}
+}
+
+int Term::RefreshGpa(const Lesson* lesson)
+{
+	Average = (TotalCredit*Average + (lesson->Credit*lesson->Grade)) / (TotalCredit + lesson->Credit);
+	AverageExpectPubEle = (TotalCreditExpectPubEle*AverageExpectPubEle + (lesson->Type != 3 ? lesson->Credit : 0) * lesson->Grade) / (TotalCreditExpectPubEle + (lesson->Type != 3 ? lesson->Credit : 0));
+	TotalCredit += lesson->Credit;
+	TotalCreditExpectPubEle += lesson->Type != 3 ? lesson->Credit : 0;
+	return 0;
 }
