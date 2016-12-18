@@ -12,7 +12,7 @@
 #include <chrono>
 #include <ctime>
 using namespace std;
-#define MAX_COMMAND 32//256
+#define MAX_COMMAND 256//256
 #define MAX_COMMAND_CHAR 256
 #define MAX_STUDENTS_NUM 8//256
 #define MAX_WEEK_TIMES 4
@@ -44,7 +44,7 @@ using namespace std;
 #define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
-#define MAX_LESSON_OF_TERM 16//128
+#define MAX_LESSON_OF_TERM 128//128
 #define MAX_TERM_OF_STUDENT 16//32
 #define DURATION_OF_LESSON 45
 #ifdef _MSC_VER
@@ -54,12 +54,26 @@ static const char *ZH_CN_LOCALE_STRING = "zh_CN.utf8";
 #endif
 bool zh_CN_less_than(const string &s1, const string &s2);
 char* strcpy_s(char *dest,size_t destsz, const char *src);
-int select(int argc, char *argv[]);
-int add(int argc, char *argv[]);
-int del(int argc, char *argv[]);
-int find(int argc, char *argv[]);
-int print(int argc, char *argv[]);
-int sort(int argc, char *argv[]);
+namespace origin {
+	int select(int argc, char *argv[]);
+	int add(int argc, char *argv[]);
+	int del(int argc, char *argv[]);
+	int find(int argc, char *argv[]);
+	int print(int argc, char *argv[]);
+	int sort(int argc, char *argv[]);
+}
+namespace readline_compatible {
+	unsigned add(const std::vector<std::string> & input);
+	unsigned del(const std::vector<std::string> & input);
+	unsigned select(const std::vector<std::string> & input);
+	unsigned find(const std::vector<std::string> & input);
+	unsigned print(const std::vector<std::string> & input);
+	unsigned sort(const std::vector<std::string> & input);
+	unsigned load(const std::vector<std::string>& input);
+	unsigned help(const std::vector<std::string>& input);
+	unsigned save(const std::vector<std::string>& input);
+}
+
 int promote();
 int promote(string Content);
 int vaildStudentId(const char InputStudentId[]);
@@ -99,16 +113,16 @@ class Time{
     {
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
-    stringstream ss;
-    ss << std::put_time(std::localtime(&in_time_t), "%Y");
-    Year=atoi((ss.str()).c_str());
-    ss.sync();
-    ss << std::put_time(std::localtime(&in_time_t), "%m");
-    Month=atoi((ss.str()).c_str());
-    ss.sync();
-    ss << std::put_time(std::localtime(&in_time_t), "%d");
-    Day=atoi((ss.str()).c_str());
-    ss.sync();
+    stringstream s1,s2,s3,ss;
+    s1 << std::put_time(std::localtime(&in_time_t), "%Y");
+    Year=atoi((s1.str()).c_str());
+    s1.sync();
+    s2 << std::put_time(std::localtime(&in_time_t), "%m");
+    Month=atoi((s2.str()).c_str());
+    s2.sync();
+    s3 << std::put_time(std::localtime(&in_time_t), "%d");
+    Day=atoi((s3.str()).c_str());
+    s3.sync();
     ss << std::put_time(std::localtime(&in_time_t), "%H");
     Hour=atoi((ss.str()).c_str());
     ss.sync();

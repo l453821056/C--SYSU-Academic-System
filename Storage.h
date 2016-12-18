@@ -14,6 +14,7 @@ class Storage{
         Student* getStudentHandle(int n);
 		Student * newStudentHandle(int n);
         int Add();
+		int Add(int StudentId, string StudnetName);
         int Find(int StudentId,const char* mode=string("-i").c_str(), int LastSearch = 0);
 		int Find(string Name, const char* mode=string("-n").c_str(), int LastSearch = 0);
         int print();

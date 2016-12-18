@@ -1,7 +1,11 @@
 #include "Storage.h"
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <vector>
+#include "json/json.h"
 using namespace std;
+namespace js = Json;
 Selection CurrentSelect;
 Time CurrentTime;
 Storage Students;
@@ -114,7 +118,7 @@ void help(initializer_list<string> argv)
     return;
     }
 }
-int select(int argc, char *argv[])
+int origin::select(int argc, char *argv[])
 {
     if(argc<=2 || argc%2!=0){
         help({"select"});
@@ -167,13 +171,13 @@ int select(int argc, char *argv[])
     }
     return 0;
 }
-int add(int argc, char *argv[])
+int origin::add(int argc, char *argv[])
 {
     if(argc<=2){
         help({"add"});
     }
-    int i=2;
-    if(argc==3){
+    else if(argc==3){
+		int i = 2;
         if(!MY_strcmp("student",argv[i])){
             Students.Add();
         }
@@ -183,15 +187,37 @@ int add(int argc, char *argv[])
             }
             Student* Point2Student=Students.getStudentHandle(Students.Find(CurrentSelect.StudentId));
             Term* Point2Term=Point2Student->getTermHandle(Point2Student->getNumberOfTerm(CurrentSelect.CurrentYear,CurrentSelect.CurrentTerm));
+			Point2Term->LessonsChanged = true;
+			Point2Student->TermsChanged = true;
             Point2Term->Add();
         }
         else{
             throwError(INVAILD_INPUT,"Addition",argv[i]);
         }
     }
-    return 0;
+	else if (argc == 5) {
+		int i = 2;
+		if (!MY_strcmp("student", argv[i])) {
+			Students.Add(atoi(argv[3]),string(argv[4]));
+		}
+		else if (!MY_strcmp("lesson", argv[i])) {
+			if (CurrentSelect.Selected == false) {
+				throwError(NOT_HAVE_SELECTED, "add lesson", string("Now You Have Selected Student ") + string(to_string(CurrentSelect.StudentId)) + string(" Year ") + string(to_string(CurrentSelect.CurrentYear)) + string(" Term ") + string(to_string(CurrentSelect.CurrentTerm)));
+			}
+			Student* Point2Student = Students.getStudentHandle(Students.Find(CurrentSelect.StudentId));
+			Term* Point2Term = Point2Student->getTermHandle(Point2Student->getNumberOfTerm(CurrentSelect.CurrentYear, CurrentSelect.CurrentTerm));
+			Point2Term->LessonsChanged = true;
+			Point2Student->TermsChanged = true;
+			Point2Term->Add();
+		}
+		else {
+			throwError(INVAILD_INPUT, "Addition", argv[i]);
+		}
+
+	}
+	return 0;
 }
-int del(int argc, char *argv[])
+int origin::del(int argc, char *argv[])
 {
 	if (argc <= 3) {
 		help({ "delete" });
@@ -233,7 +259,7 @@ int del(int argc, char *argv[])
 
     return 0;
 }
-int find(int argc, char *argv[])
+int origin::find(int argc, char *argv[])
 {
 	if (argc <= 4) {
 		help({ "find" });
@@ -348,7 +374,7 @@ int find(int argc, char *argv[])
 	}
     return 0;
 }
-int sort(int argc, char *argv[])
+int origin::sort(int argc, char *argv[])
 {
 	if (argc <= 3) {
 		help({ "sort" });
@@ -406,7 +432,7 @@ int sort(int argc, char *argv[])
 	}
     return 0;
 }
-int print(int argc, char *argv[])
+int origin::print(int argc, char *argv[])
 {
     if(argc<=2){
         help({"print"});
@@ -437,6 +463,7 @@ int print(int argc, char *argv[])
     }
     return 0;
 }
+
 int promote()
 {
     if(!CurrentSelect.Selected)
@@ -450,4 +477,271 @@ int promote(string Content)
 {
 	cout << Content << " > ";
 	return 0;
+}
+
+unsigned readline_compatible::add(const std::vector<std::string>& input)
+{
+	//Init Command stack
+	char *iargv[MAX_COMMAND];
+	for (int i = 0; i<MAX_COMMAND; i++) {
+		iargv[i] = new char[MAX_COMMAND_CHAR];
+		memset(iargv[i], 0, sizeof(char)*MAX_COMMAND_CHAR);
+	}
+	for (int i = 1; i<=input.size(); i++)
+		strcpy_s(iargv[i], MAX_COMMAND_CHAR, input[i-1].c_str());
+	return origin::add(input.size() + 1, iargv);
+}
+
+unsigned readline_compatible::del(const std::vector<std::string>& input)
+{
+	//Init Command stack
+	char *iargv[MAX_COMMAND];
+	for (int i = 0; i<MAX_COMMAND; i++) {
+		iargv[i] = new char[MAX_COMMAND_CHAR];
+		memset(iargv[i], 0, sizeof(char)*MAX_COMMAND_CHAR);
+	}
+	for (int i = 1; i <= input.size(); i++)
+		strcpy_s(iargv[i], MAX_COMMAND_CHAR, input[i-1].c_str());
+	return origin::del(input.size() + 1, iargv);
+}
+
+unsigned readline_compatible::select(const std::vector<std::string>& input)
+{
+	//Init Command stack
+	char *iargv[MAX_COMMAND];
+	for (int i = 0; i<MAX_COMMAND; i++) {
+		iargv[i] = new char[MAX_COMMAND_CHAR];
+		memset(iargv[i], 0, sizeof(char)*MAX_COMMAND_CHAR);
+	}
+	for (int i = 1; i <= input.size(); i++)
+		strcpy_s(iargv[i], MAX_COMMAND_CHAR, input[i-1].c_str());
+	return origin::select(input.size() + 1, iargv);
+}
+
+unsigned readline_compatible::find(const std::vector<std::string>& input)
+{
+	//Init Command stack
+	char *iargv[MAX_COMMAND];
+	for (int i = 0; i<MAX_COMMAND; i++) {
+		iargv[i] = new char[MAX_COMMAND_CHAR];
+		memset(iargv[i], 0, sizeof(char)*MAX_COMMAND_CHAR);
+	}
+	for (int i = 1; i <= input.size(); i++)
+		strcpy_s(iargv[i], MAX_COMMAND_CHAR, input[i-1].c_str());
+	return origin::find(input.size() + 1, iargv);
+}
+
+unsigned readline_compatible::print(const std::vector<std::string>& input)
+{
+	//Init Command stack
+	char *iargv[MAX_COMMAND];
+	for (int i = 0; i<MAX_COMMAND; i++) {
+		iargv[i] = new char[MAX_COMMAND_CHAR];
+		memset(iargv[i], 0, sizeof(char)*MAX_COMMAND_CHAR);
+	}
+	for (int i = 1; i <= input.size(); i++)
+		strcpy_s(iargv[i], MAX_COMMAND_CHAR, input[i-1].c_str());
+	return origin::print(input.size() + 1, iargv);
+}
+
+unsigned readline_compatible::sort(const std::vector<std::string>& input)
+{
+	//Init Command stack
+	char *iargv[MAX_COMMAND];
+	for (int i = 0; i<MAX_COMMAND; i++) {
+		iargv[i] = new char[MAX_COMMAND_CHAR];
+		memset(iargv[i], 0, sizeof(char)*MAX_COMMAND_CHAR);
+	}
+	for (int i = 1; i <= input.size(); i++)
+		strcpy_s(iargv[i], MAX_COMMAND_CHAR, input[i-1].c_str());
+	return origin::sort(input.size() + 1, iargv);
+}
+void split(const std::string &s, char delim, std::vector<std::string> &elems) {
+	std::stringstream ss;
+	ss.str(s);
+	std::string item;
+	while (std::getline(ss, item, delim)) {
+		elems.push_back(item);
+	}
+}
+
+
+std::vector<std::string> split(const std::string &s, char delim) {
+	std::vector<std::string> elems;
+	split(s, delim, elems);
+	return elems;
+}
+unsigned readline_compatible::load(const std::vector<std::string>& input)
+{
+	if (CurrentSelect.StudentId == 0) {
+		throwError(NOT_HAVE_SELECTED, "Load Lessons", "You have to at least select Student");
+	}
+	js::Reader Reader;
+	js::Value Root;
+	ifstream is;
+	is.open(input[1], ios::binary);
+	string line;
+	while (getline(is, line)) {
+		stringstream ss(line);
+		Lesson temp;
+		if (Reader.parse(ss, Root)) {
+			temp.TeacherName = Root["teacherName"].asString();
+			temp.Name = Root["courseName"].asString();
+			temp.Type = 1 + Root["lessonType"].asInt();
+			temp.Year = atoi(Root["year"].asString().c_str());
+			temp.Term = Root["term"].asInt();
+			temp.WeekTimes = Root["WeekTimes"].asInt();
+			temp.Credit = atoi(Root["credit"].asString().c_str());
+			string Week_str = Root["Week"].asString();
+			string Place_str = Root["Place"].asString();
+			string StartTime_str = Root["StartTime"].asString();
+			string EndTime_str = Root["EndTime"].asString();
+			vector<string> Weeks = split(Week_str, '|');
+			vector<string> Places = split(Place_str, '|');
+			vector<string> StartTimes = split(StartTime_str, '|');
+			vector<string> EndTiems = split(EndTime_str, '|');
+			for (int i = 0; i < temp.WeekTimes; i++) {
+				temp.Weekday[i] = atoi(Weeks[i+1].c_str());
+				temp.Place[i] = Places[i+1];
+				temp.StartTime[i] = atoi(StartTimes[i+1].c_str());
+				temp.EndTime[i] = atoi(EndTiems[i+1].c_str());
+			}
+			if (Root["HasGrade"].asInt() != js::nullValue) {
+				temp.Grade_Ori = Root["Grade_Ori"].asInt();
+				temp.Finished = true;
+			}
+			else {
+				temp.Grade_Ori = 0;
+				temp.Finished = false;
+			}
+			int StudentRank = Students.Find(CurrentSelect.StudentId, "-i");
+			Student* Point2Student = Students.getStudentHandle(StudentRank);
+			int TermRank = Point2Student->getNumberOfTerm(temp.Year, temp.Term);
+			Term* Point2Term = Point2Student->getTermHandle(TermRank);
+			Lesson* Point2Lesson = &Point2Term->Lessons[Point2Term->getNumberOfLessonRefer()];
+			*Point2Lesson = temp;
+			//Point2Lesson->Finished = true;
+			//Point2Lesson->Name = temp.Name;
+			//Point2Lesson->Year = temp.Year;
+			//Point2Lesson->Type = temp.Type;
+			//Point2Lesson->Grade_Ori = 0;
+			//Point2Lesson->TeacherName = temp.TeacherName;
+			//Point2Lesson->Credit = temp.Credit;
+			//Point2Lesson->WeekTimes = temp.WeekTimes;
+			
+			//for(int i=0;i<Point2Lesson->WeekTimes;i++){
+			//	Point2Lesson->Weekday[i] = temp.Weekday[i];
+			//	Point2Lesson->StartTime[i] = temp.StartTime[i];
+			//	Point2Lesson->EndTime[i] = temp.EndTime[i];
+			//	Point2Lesson->Place[i] = temp.Place[i];
+			//}
+			Point2Term->getNumberOfLessonRefer()++;
+			Point2Term->LessonsChanged = true;
+			Point2Student->TermsChanged = true;
+		}
+	}
+	is.close();
+}
+unsigned readline_compatible::help(const std::vector<std::string>& argv) {
+	bool found = true;
+	auto beg = argv.begin();
+	if (argv.size() == 1) {
+		cout << "可用功能    " << "用法" << endl;
+		cout << "select      " << "选择学生，学年，学期" << endl;
+		cout << "add         " << "添加学生课程课程" << endl;
+		cout << "print       " << "显示学生信息，各学期总体情况，各学期课程安排" << endl;
+		cout << "delete      " << "删除学生或课程" << endl;
+		cout << "sort        " << "对学生或课程进行排序" << endl;
+		cout << "run         " << "执行批处理脚本" << endl;
+		cout << "load        " << "加载从教务系统获取的学生全部课程信息" << endl;
+		cout << "find        " << "搜索指定学生或课程" << endl;
+		cout << "save        " << "保存当前学生信息到[StudentID].json" << endl;
+	}
+	else if (argv.size() == 2) {
+		if (argv[1] == string("select")) {
+			cout << "可用参数    " << "用法" << RESET << endl;
+			cout << "student     " << "后接学生学号，如" << BOLDMAGENTA << "select student 15323032" << RESET << RESET << endl;
+			cout << "year        " << "后接学年    ，如" << BOLDMAGENTA << "select year    2016" << RESET << RESET << endl;
+			cout << "term        " << "后接学期    ，如" << BOLDMAGENTA << "select term    1" << RESET << RESET << endl;
+			++beg;
+		}
+		else if(argv[1] == string("add")) {
+			cout << "可用参数    " << "用法" << RESET << endl;
+			cout << "student     " << "添加学生，执行后将提示输入姓名，学号，院系信息" << endl;
+			cout << "student     " << "后接学号，姓名，直接添加学生" << BOLDMAGENTA << "add student 15323032 李新锐" << RESET << RESET << endl;
+			cout << "lesson      " << "添加课程，执行后将提示输入课程信息"  << RESET << endl;
+		}
+		else if (argv[1] == string("print")) {
+			cout << "可用参数    " << "用法" << RESET << endl;
+			cout << "student     " << "显示全部学生信息" <<  endl;
+			cout << "term        " << "显示学生全部学期信息" << endl;
+			cout << "lesson      " << "显示当前学期课程信息" << RESET << endl;
+		}
+		else if (argv[1] == string("delete")) {
+			cout << "可用参数    " << "用法" << RESET << endl;
+			cout << "student     " << "后接学号，删除指定学号的学生" << BOLDMAGENTA << "delete student 15323032" << RESET << RESET << endl;
+			cout << "lesson      " << "后接课程编号，删除指定课程" << RESET << endl;
+			cout << "rank        " << "后接学生编号，删除指定学生" << endl;
+		}
+		else {
+			found = false;
+		}
+	}
+	if (!found) {
+		cout << "没有找到" << BOLDMAGENTA << (*(argv.begin())) << RESET << "的帮助。";
+		for (auto beg = argv.begin() + 1; beg != argv.end(); ++beg)
+			cout << "在模块" << BOLDMAGENTA << *beg << RESET << "中";
+		cout << endl;
+		return 0;
+	}
+
+}
+unsigned readline_compatible::save(const std::vector<std::string>& input) {
+	if (CurrentSelect.StudentId == 0) {
+		throwError(NOT_HAVE_SELECTED, "Save Lessons", "You have to at least select Student");
+	}
+	js::Reader Reader;
+	js::Value Root;
+	js::FastWriter Writer;
+	ofstream os;
+	string filename = to_string(CurrentSelect.StudentId) + ".json";
+	os.open(filename, ios::binary);
+	int StudentRank = Students.Find(CurrentSelect.StudentId, "-i");
+	Student* Point2Student = Students.getStudentHandle(StudentRank);
+	for (int i = 1; i <= Point2Student->NumberOfTerm; i++) {
+		Term* Point2Term = Point2Student->getTermHandle(i);
+		for (int j = 0; j < Point2Term->getNumberOfLessonRefer(); j++) {
+			Lesson temp = Point2Term->Lessons[j];
+			Root["teacherName"] = temp.TeacherName;
+			Root["courseName"] = temp.Name;
+			Root["lessonType"] = temp.Type - 1;
+			Root["year"] = temp.Year;
+			Root["term"] = temp.Term;
+			Root["WeekTimes"] = temp.WeekTimes;
+			Root["credit"] = temp.Credit;
+			string Week_str;
+			string Place_str;
+			string StartTime_str;
+			string EndTime_str;
+			for (int i = 0; i < temp.WeekTimes; i++) {
+
+				Week_str += "|" + to_string(temp.Weekday[i]);
+				Place_str += "|" + temp.Place[i];
+				StartTime_str += "|" + to_string(temp.StartTime[i]);
+				EndTime_str += "|" + to_string(temp.EndTime[i]);
+			}
+			Root["Week"] = Week_str;
+			Root["Place"] = Place_str;
+			Root["StartTime"] = StartTime_str;
+			Root["EndTime"] = EndTime_str;
+			if (temp.Finished) {
+				Root["HasGrade"] = 1;
+				Root["Grade_Ori"] = temp.Grade_Ori;
+			}
+			string str_writer = Writer.write(Root);
+			os << str_writer;
+			os << endl;
+		}
+	}
+	os.close();
 }

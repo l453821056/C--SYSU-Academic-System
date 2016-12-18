@@ -99,6 +99,18 @@ int Storage::Add()
 	*/
     getTotalStudentNumberRefer()++;
 }
+int Storage::Add(int StudentId, string StudnetName) {
+	int result = StudentId;
+	if (!result) {
+		throwWarning(INVAILD_INPUT, "add student", to_string(StudentId).c_str(), "Illegal Student ID");
+	}
+	else {
+		this->newStudentHandle(getTotalStudentNumberRefer())->setStudentId(result);
+	}
+	this->getStudentHandle(getTotalStudentNumberRefer())->setName(StudnetName);
+	getTotalStudentNumberRefer()++;
+
+}
 int Storage::Find(int StudentId, const char* Mode, int LastSearch)
 {
 	if (!strcasecmp(Mode,"-i")) {
